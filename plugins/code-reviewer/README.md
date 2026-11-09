@@ -9,6 +9,7 @@ Generates a code-review subagent tailored to your repository. The generator read
 - Runs your fast checks (lint, typecheck, unit tests) and reports failures.
 - Checks the focus areas you chose, with rules written for your stack.
 - Reports findings by severity (BLOCKER, MAJOR, MINOR, NIT), each with `file:line`, quoted code and a fix, and ends with a verdict: APPROVE, APPROVE WITH NITS or REQUEST CHANGES.
+- Lists anything it cannot confirm from the code under "Open questions" instead of guessing.
 - It never edits files, unless you allow it to fix nits.
 
 ## Install

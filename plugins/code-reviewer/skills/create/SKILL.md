@@ -38,6 +38,7 @@ Rules:
 - Use AskUserQuestion when it is available. Each question has 2–4 options, and your detected default comes first, marked "(Recommended)".
 - Ask open-ended questions in plain text, numbered, with defaults in brackets, so the user can reply "defaults" or answer by number.
 - Skip a question the repository already answers, and state what you detected instead ("Base branch: dev, detected from origin").
+- When the code does not settle something clearly (two candidate base branches, two test runners, no clear lint script), ask instead of guessing. Offer your best guess as the recommended option and say what points each way. Never present a guess as detected.
 
 ### Round 1: Identity and trigger
 
@@ -119,6 +120,7 @@ Then list the house rules in full and ask: "Generate the agent with these settin
 2. Read [references/examples/nextjs-supabase.md](references/examples/nextjs-supabase.md) to calibrate the level of detail. Use it for calibration only; do not copy its rules into an unrelated stack.
 3. If `.claude/agents/<name>.md` already exists, show the user what would change and ask before overwriting it.
 4. Write the agent to `.claude/agents/<name>.md` following the template. Include only the focus areas the user selected, each with a checklist written for this stack. Write "Server Components by default; flag `'use client'` on components without state, effects or event handlers", not "check React best practices".
+5. Never invent rules, commands or paths. Anything not found in the repository or given by the user is left out; if it matters, go back and ask.
 
 ## Phase 5: Validate and hand off
 
@@ -127,6 +129,7 @@ Then list the house rules in full and ask: "Generate the agent with these settin
    - Every selected focus area has a stack-specific checklist.
    - Every command named exists in the project (check it against the scripts or the Makefile).
    - No `<...>` placeholder or `TODO` remains outside the `## Output` template.
+   - The Boundaries include the uncertainty rule, and the Output has an Open questions section.
    - The body is 80–150 lines.
    - It contains no AI or tool attribution.
 3. Offer a dry run: "Want me to run it on the current changes to see how it reviews?" If yes, delegate to the new agent by name. If the session does not see it yet, run a general-purpose agent with the file's body as its instructions. Show the report, and if it contains false positives or noise, propose specific edits to the agent file.
