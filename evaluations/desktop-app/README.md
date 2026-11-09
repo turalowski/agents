@@ -1,6 +1,6 @@
 # Evaluation: desktop app, 2026-11-09
 
-This compares a plain prompt with each generated agent on the same uncommitted change in a real repository. Sections 1–6 cover the first run, with `code-reviewer` 1.1.0 and `tester` 1.0.0. Section 7 re-runs the agents after the fixes, with `code-reviewer` 1.2.0 and `tester` 1.1.0.
+This compares a plain prompt with each generated agent on the same uncommitted change in a real repository. Sections 1–6 cover the first run, with the first drafts of both kits. Section 7 re-runs the agents after the fixes from section 5.
 
 ## 1. Setup
 
@@ -118,7 +118,7 @@ Two weaknesses showed up:
 
 ## 5. Changes this suggests for the kits
 
-All 18 were applied in code-reviewer 1.2.0 and tester 1.1.0. They have not been re-evaluated yet.
+All 18 were applied to the kits and re-evaluated in section 7.
 
 Both generator runs reported problems with the skills, and the runs above add more. Proposed fixes, by kit:
 
@@ -155,7 +155,7 @@ Both generator runs reported problems with the skills, and the runs above add mo
 - **tester:** clearly better than a plain prompt. It left the suite green, didn't lock in guesses, proved its tests, and asked about ambiguities.
 - **Generation:** about 190k tokens in total, once per repository. Both agents picked up real conventions of the repository that a plain prompt only gets when `CLAUDE.md` is this thorough.
 
-## 7. Re-run with code-reviewer 1.2.0 and tester 1.1.0
+## 7. Re-run after the fixes
 
 ### 7.1 Method
 
@@ -163,7 +163,7 @@ Both agents were regenerated with the new skill versions, from the same clean wo
 
 ### 7.2 Generation
 
-|                 | code-reviewer 1.1.0 → 1.2.0                                                              | tester 1.0.0 → 1.1.0                                                                                   |
+|                 | code-reviewer: first run → re-run                                                        | tester: first run → re-run                                                                             |
 | --------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Body length     | 159, trimmed to 150 → **145, no trimming**                                               | 115 → 113                                                                                              |
 | Base branch     | `dev`, chosen without citing a source → `dev` from `CLAUDE.md` and 46 of 48 merges       | same                                                                                                   |
@@ -176,7 +176,7 @@ Both agents were regenerated with the new skill versions, from the same clean wo
 
 ### 7.3 Code review
 
-|                                        | Plain       | Agent 1.1.0         | Agent 1.2.0                                                   |
+|                                        | Plain       | Agent, first run    | Agent, re-run                                                 |
 | -------------------------------------- | ----------- | ------------------- | ------------------------------------------------------------- |
 | Seeded flaws found                     | 11 / 11     | 9 / 11              | **11 / 11**                                                   |
 | Bad input (#9) and byte decimals (#10) | ✅          | ❌                  | ✅                                                            |
@@ -187,11 +187,11 @@ Both agents were regenerated with the new skill versions, from the same clean wo
 | Verdict                                | none        | REQUEST CHANGES     | REQUEST CHANGES                                               |
 | Cost                                   | 54.5k, 33 s | 54.0k, 76 s         | 54.4k, 66 s                                                   |
 
-The second read without the checklist (fix 11) and `path:line` from the diff (fix 10) closed the gaps from section 3.4. The agent now matches the plain prompt on findings, at the same token cost, while keeping its consistency: checks run, fixed severities, a verdict, and open questions kept apart. The only finding the plain review had that 1.2.0 did not was the duplicate-name collision ("X (copy)" twice).
+The second read without the checklist (fix 11) and `path:line` from the diff (fix 10) closed the gaps from section 3.4. The agent now matches the plain prompt on findings, at the same token cost, while keeping its consistency: checks run, fixed severities, a verdict, and open questions kept apart. The only finding the plain review had that the re-run agent did not was the duplicate-name collision ("X (copy)" twice).
 
 ### 7.4 Tests
 
-|                   | Plain                | Agent 1.0.0                                                         | Agent 1.1.0                                                                                                   |
+|                   | Plain                | Agent, first run                                                    | Agent, first run                                                                                              |
 | ----------------- | -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Tests added       | 36 (9 failing)       | 12                                                                  | 8                                                                                                             |
 | Suite afterwards  | red                  | green                                                               | green (80 suites, 382 tests)                                                                                  |
@@ -202,11 +202,11 @@ The second read without the checklist (fix 11) and `path:line` from the diff (fi
 | Line references   | n/a                  | function names                                                      | one `file:line`, and it was wrong (`format.js:20`, the loop is on 23)                                         |
 | Cost              | 57.7k, 60 s          | 66.1k, 128 s                                                        | 67.0k, 141 s                                                                                                  |
 
-The mutation proof (fix 13) works: every new test is now shown to catch a real change in behaviour, not just a missing function. Severity drift is only partly fixed. The template defines any bug as a BLOCKER, but the agent still rated the `formatFileSize` bugs MAJOR. It also stopped asking about bad input (`undefined`, `NaN`, negative numbers) and skipped validation, which 1.0.0 raised. That may be run-to-run noise.
+The mutation proof (fix 13) works: every new test is now shown to catch a real change in behaviour, not just a missing function. Severity drift is only partly fixed. The template defines any bug as a BLOCKER, but the agent still rated the `formatFileSize` bugs MAJOR. It also stopped asking about bad input (`undefined`, `NaN`, negative numbers) and skipped validation, which the first run raised. That may be run-to-run noise.
 
 ### 7.5 Remaining fixes
 
-The re-run and both generators point to these next changes. All 10 were applied in code-reviewer 1.3.0 and tester 1.2.0; they have not been re-evaluated yet. Fix 2 refined the shared severity definition in 2.6, since both agents rated the size bugs MAJOR in both runs.
+The re-run and both generators point to these next changes. All 10 were applied to the kits; they have not been re-evaluated yet. Fix 2 refined the shared severity definition in 2.6, since both agents rated the size bugs MAJOR in both runs.
 
 1. **Line numbers in the tester:** require `path:line` from `grep -n`, as the reviewer does; its one line reference was wrong.
 2. **Severity in the tester:** spell out that every confirmed bug is at least a BLOCKER per the definition, or relax the definition to separate crashes and security issues from wrong formatting.
@@ -221,5 +221,5 @@ The re-run and both generators point to these next changes. All 10 were applied 
 
 ### 7.6 Bottom line
 
-- **code-reviewer 1.2.0** now finds as much as a plain prompt (11/11), with correct line numbers, at the same cost, and adds checks, stable severities, a verdict and separate open questions. It is worth using over a plain prompt.
-- **tester 1.1.0** keeps the lead from the first run, and its proof is now real. Its remaining weaknesses are line references and severity.
+- **code-reviewer**, after the fixes, finds as much as a plain prompt (11/11), with correct line numbers, at the same cost, and adds checks, stable severities, a verdict and separate open questions. It is worth using over a plain prompt.
+- **tester** keeps the lead from the first run, and its proof is now real. Its remaining weaknesses are line references and severity.
