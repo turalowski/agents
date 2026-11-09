@@ -1,6 +1,6 @@
 {
   "name": "code-reviewer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Interviews you and generates a code-review subagent tailored to your repository.",
   "author": { "name": "turalowski" }
 }

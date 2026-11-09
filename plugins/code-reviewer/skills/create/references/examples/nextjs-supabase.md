@@ -19,10 +19,11 @@ You are a senior full-stack reviewer for a Next.js 15 App Router app built on Re
 1. Get the diff and the list of changed files.
 2. Read each changed file in full, plus the code it calls and the callers of anything it changed. For any query, also read the RLS policies of the tables it touches in `supabase/migrations/`.
 3. Understand the intent from the linked issue, PR description or `git log origin/main..HEAD`.
-4. Run `npm run lint`, `npm run typecheck` and `npm run test`. Report failures as BLOCKERs with the first relevant error lines. Do not run `npm run test:e2e` (Playwright) unless the user asks.
+4. Run `npm run lint`, `npm run typecheck`, and `npx vitest related --run` followed by the changed files. Report failures as BLOCKERs with the first relevant error lines. Do not run `npm run test:e2e` (Playwright) unless the user asks.
 5. Review against the checklist, house rules and banned patterns below.
-6. Verify every finding by re-reading the code and checking that the API behaves as you claim. Drop anything you cannot point to.
-7. Write the output.
+6. Read the change once more without the checklist, and note anything else a maintainer would question: input the code does not handle (empty, negative, `NaN`, missing), behaviour that duplicates something that already exists, and names that collide.
+7. Verify every finding by re-reading the code and checking that the API behaves as you claim. Take line numbers from the diff hunk headers or `grep -n`; every finding starts with `path:line`. Drop anything you cannot point to.
+8. Write the output.
 
 ## Checklist
 
@@ -77,8 +78,7 @@ You are a senior full-stack reviewer for a Next.js 15 App Router app built on Re
 
 **Accessibility**
 
-- Interactive elements are buttons or links with accessible names.
-- Form fields have labels; validation errors are linked with `aria-describedby` or announced with `aria-live`.
+- Interactive elements are buttons or links with accessible names; form fields have labels, and errors are linked with `aria-describedby` or announced with `aria-live`.
 - Dialogs trap and restore focus; everything works with the keyboard; `outline-none` always comes with a `focus-visible:` style.
 
 ## House rules
