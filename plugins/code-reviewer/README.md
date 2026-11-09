@@ -52,7 +52,7 @@ To use it, say "review my changes", or mention the agent with `@code-reviewer`. 
 | When it runs | proactively · before a PR · only when asked | proactively |
 | What it reviews | branch diff · staged · uncommitted | branch diff against the detected base branch |
 | Model | inherit · sonnet · opus | inherit |
-| Focus areas | correctness (always), tests, security, type safety, performance, accessibility, framework rules, design system, readability, architecture, API contracts, AI/LLM code | chosen from your stack |
+| Focus areas | correctness (always), tests, security, type safety, performance, accessibility, framework rules, design system, readability, architecture, API contracts, AI/LLM code, desktop and IPC security | chosen from your stack |
 | Strictness | light (BLOCKER only) · balanced · strict (everything) | balanced |
 | House rules, banned patterns, ignored paths | free text | proposed from your docs and configs |
 | Output | grouped by severity · plus "What's good" · compact checklist | grouped by severity |

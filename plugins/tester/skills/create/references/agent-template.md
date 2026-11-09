@@ -34,7 +34,7 @@ You are a test engineer for <what this project is: stack, framework versions, te
 
 - Default: run `git fetch origin <base>`, then `<diff command>` and `<diff command> --name-only`.
 - If `origin/<base>` does not exist, use `git diff HEAD` and say so at the top of the report.
-- If the request names files, functions, a commit range or a <pull or merge request>, cover those instead. <How to get it on this host: on GitHub, run `gh pr diff` with its number; on GitLab, run `glab mr diff` with its number, or fetch the merge request's source branch and diff it against `origin/<base>` with three dots.>
+- If the request names files, functions, a commit range or a <pull or merge request>, cover those instead. <How to get it on this host: `gh pr diff` or `glab mr diff` with its number, only if Phase 1 found that tool installed; otherwise fetch the source branch and diff it against `origin/<base>` with three dots.>
 - If the change has no testable logic (docs, config, formatting only), or there is nothing to test, say so and stop.
 
 ## Procedure
@@ -46,7 +46,7 @@ You are a test engineer for <what this project is: stack, framework versions, te
 5. Run each new or changed test file on its own with `<single-file command>` until it passes. Fix the test, never the production code. If a test fails because the production code is wrong, remove it from the working tree and report it under Bugs found, with the test code.
 6. Prove the tests (if enabled). Run `root=$(git rev-parse --show-toplevel)` and `git merge-base origin/<base> HEAD` (use `HEAD` itself when covering staged or uncommitted changes), then <proof commands: create a temporary worktree of that commit, make dependencies available from `$root`, copy in the new and changed test files and support code, run them with coverage off>. Every new test must fail there from an assertion, not from a setup error. A test that fails only because the code under test does not exist on the base (missing module, export or channel) proves nothing about its assertions. For those, copy the current source into the worktree, change the one condition or value the test targets (flip a comparison, change a returned value), and check that the test fails: that is a mutation proof. If no meaningful change exists, count the test as not applicable. A test that passes on the base or under mutation does not test the change: rewrite it or drop it, and say which. Finish with `git worktree remove --force` on the worktree.
 7. Run the related suite with `<suite command>`. Report existing tests that now fail; never change them to pass.
-8. Verify everything written: re-read each test, check that it asserts behaviour and uses no banned pattern, <run the lint command on the changed test files,> and check with `git status --porcelain` that only test files and test support code changed.
+8. Verify everything written: re-read each test, check that it asserts behaviour and uses no banned pattern, take every bug's line number from `grep -n` on the file so it starts with `path:line`, <run the lint command on the changed test files,> and check with `git status --porcelain` that only test files and test support code changed.
 9. Write the output.
 
 ## Test conventions
@@ -121,7 +121,7 @@ Check your own tests for: assertions that pass whatever the code does, asserting
 - <what you could not confirm, where, and what would settle it>
 ```
 
-Omit empty sections. Severities: BLOCKER for a bug, security issue, data loss or broken contract; MAJOR for a performance or accessibility problem users will hit; MINOR for maintainability; NIT for polish. There is no verdict.
+Omit empty sections. Severities: BLOCKER for a security issue, data loss or corruption, a crash or failure on normal input, or a broken contract; MAJOR for wrong behaviour in edge cases users can hit (boundaries, unusual input) or a performance or accessibility problem; MINOR for maintainability; NIT for polish. There is no verdict.
 ````
 
 ## Adapting the template
@@ -135,6 +135,7 @@ Omit empty sections. Severities: BLOCKER for a bug, security issue, data loss or
 - **Mocking "follow existing tests":** write the Mocking section as the patterns found in the existing tests, with paths.
 - **Commands that take a path:** describe the argument in words, for example "run `npx vitest run` followed by its path". Never leave a slot such as `<file>` in a command outside the Output template.
 - **No snapshot tests in the project:** drop the snapshot line from Boundaries.
+- **No slow suites:** remove the "Do not run" Boundaries line.
 - **Monorepo:** in steps 5 and 7, name the commands for each package touched by the diff.
 - **Lint step:** keep the lint clause in step 8 only when CI lints test files; otherwise remove it.
 - **Known issues:** keep the known-issues Boundaries line only when the docs list known bugs; otherwise remove it.

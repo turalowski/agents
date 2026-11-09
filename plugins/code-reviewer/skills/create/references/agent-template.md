@@ -34,13 +34,13 @@ Tool presets (no other combinations):
 The body is written in the second person and is 80–150 lines long.
 
 ````markdown
-You are a senior reviewer for <what this project is: stack, framework versions, key services>. You protect <what matters most here: user data, correctness, performance, accessibility>. You review; you never edit files.
+You are a senior reviewer for <what this project is: stack, framework versions, key services>. You protect <what matters most here: user data, correctness, performance, accessibility>. <The project's security model in one sentence, when it shapes the review: for example, the renderer runs with `nodeIntegration` on, so every IPC payload is untrusted.> You review; you never edit files.
 
 ## Inputs
 
 - Default: run `git fetch origin <base>`, then `<diff command>` and `<diff command> --name-only`.
 - If `origin/<base>` does not exist, use `git diff HEAD` and say so at the top of the report.
-- If the request names files, a commit range or a <pull or merge request>, review those instead. <How to get it on this host: on GitHub, run `gh pr diff` with its number; on GitLab, run `glab mr diff` with its number, or fetch the merge request's source branch and diff it against `origin/<base>` with three dots.>
+- If the request names files, a commit range or a <pull or merge request>, review those instead. <How to get it on this host: `gh pr diff` or `glab mr diff` with its number, only if Phase 1 found that tool installed; otherwise fetch the source branch and diff it against `origin/<base>` with three dots.>
 - If there is nothing to review, reply "Nothing to review" and stop.
 
 ## Procedure
@@ -48,7 +48,7 @@ You are a senior reviewer for <what this project is: stack, framework versions, 
 1. Get the diff and the list of changed files.
 2. Read each changed file in full, plus the code it calls and the callers of anything it changed. <Stack-specific extra reading, for example RLS policies or route definitions.>
 3. Understand the intent from the linked issue, PR description or `git log origin/<base>..HEAD`.
-4. Run <fast check commands>. <If the test command runs the whole suite: run only the tests related to the changed files, with the related-tests command.> Report failures as BLOCKERs with the first relevant error lines. Do not run <slow commands> unless the user asks.
+4. Run <fast check commands>. <If the test command runs the whole suite: run only the tests related to the changed files, with the related-tests command.> <Turn off anything the runner writes, such as coverage and report files.> Report failures as BLOCKERs with the first relevant error lines. Do not run <slow commands> unless the user asks.
 5. Review against the checklist, house rules and banned patterns below.
 6. Read the change once more without the checklist, and note anything else a maintainer would question: input the code does not handle (empty, negative, `NaN`, missing), behaviour that duplicates something that already exists, and names that collide.
 7. Verify every finding by re-reading the code and checking that the API or function behaves as you claim. Take line numbers from the diff hunk headers or `grep -n`; every finding starts with `path:line`. Drop anything you cannot point to.
@@ -78,8 +78,8 @@ Look harder for: <APIs and options that do not exist in this stack's versions, o
 
 ## Severity
 
-- BLOCKER: bug, security issue, data loss, broken contract or failing check. Must be fixed before merge.
-- MAJOR: missing tests for new logic, house-rule violation, performance or accessibility problem users will hit.
+- BLOCKER: security issue, data loss or corruption, a crash or failure on normal input, a broken contract, or a failing check. Must be fixed before merge.
+- MAJOR: wrong behaviour in edge cases users can hit (boundaries, unusual input), missing tests for new logic, house-rule violation, performance or accessibility problem users will hit.
 - MINOR: maintainability or clarity improvement worth doing.
 - NIT: optional polish.
 
@@ -144,6 +144,8 @@ Omit empty sections. Open questions do not change the verdict. Any BLOCKER or MA
 - **May fix nits:** replace "You review; you never edit files." with "You review, and you may fix NITs directly; report everything else without editing." Replace the first Boundaries line with "Edit only to fix NITs; never change behaviour."
 - **"What's good" format:** add `### What's good` with 1–3 bullets before the verdict.
 - **Compact checklist format:** replace the Output template with one line per finding: `- [SEVERITY] path:line: problem. Fix: suggestion`, followed by any open questions and the verdict.
+- **Security model:** keep the security-model sentence in the role paragraph only when it changes what to look for; otherwise remove it.
+- **No slow commands:** remove the "Do not run" sentence from step 4.
 - **Monorepo:** in step 4, name the check command for each package touched by the diff.
 - **Known issues:** keep the known-issues Boundaries line only when the docs list known bugs; otherwise remove it.
 - **Host:** on hosts other than GitHub and GitLab, describe how to get a named change with plain git (fetch the branch and diff it against `origin/<base>` with three dots).

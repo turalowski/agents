@@ -23,8 +23,10 @@ Read what exists so your questions come with good defaults. Read only; never mod
 - Whether the runner forces coverage or extra reporters on every run (`collectCoverage: true`, `coverage.enabled`, `--cov` in `addopts`). The single-file and proof commands then turn them off: `--coverage=false` for Jest, `--coverage.enabled=false` for Vitest, `--no-cov` for pytest-cov.
 - Whether CI lints test files, and the lint command for one file.
 - Coverage configuration and thresholds, flaky or quarantine markers, and how CI runs tests (`.github/workflows/*`, `.gitlab-ci.yml`).
-- The host: `git remote get-url origin`. GitHub uses pull requests and `gh`; GitLab uses merge requests and `glab`; any other host gets plain git commands. Use the host's word ("pull request" or "merge request") everywhere in the agent.
-- The base branch, in this order: `git symbolic-ref refs/remotes/origin/HEAD`; the branch the docs name (`CLAUDE.md`, `CONTRIBUTING.md`, `README.md`); the branch CI runs merge or pull request pipelines against; the most common target in `git log --merges --oneline -50`. Each of these counts as detected; note which source settled it. The base branch is unclear only when these disagree or are all silent. If there is no remote, note it.
+- Commit hooks: `.husky/`, `lefthook.yml`, `.pre-commit-config.yaml` and the lint-staged config show what already runs on every commit.
+- Ignore candidates: the linter ignore lists and `.gitignore`, plus fixture, sample-file and runtime-data folders.
+- The host: `git remote get-url origin`. GitHub uses pull requests and `gh`; GitLab uses merge requests and `glab`; any other host gets plain git commands. Check that the tool is installed (`command -v gh`, `command -v glab`); if it isn't, the agent uses plain git. Use the host's word ("pull request" or "merge request") everywhere in the agent.
+- The base branch, in this order: `git symbolic-ref refs/remotes/origin/HEAD`; the branch the docs name (`CLAUDE.md`, `CONTRIBUTING.md`, `README.md`); the branch CI runs merge or pull request pipelines against; the most common target in `git log --merges --oneline -50`. If `origin/HEAD` is not set, that source is silent; move on. Each of these counts as detected; note which source settled it. CI disagrees with the docs only when it names a different merge or pull request target; running on more branches is not a disagreement. The base branch is unclear only when the sources disagree or are all silent. If there is no remote, note it.
 - Existing agents in `.claude/agents/`. Avoid name clashes, and note whether a `code-reviewer` exists so the hand-off can mention it.
 
 Write down for yourself:
@@ -45,6 +47,7 @@ Rules:
 - Ask open-ended questions in plain text, numbered, with defaults in brackets, so the user can reply "defaults" or answer by number.
 - Skip a question the repository already answers, and state what you detected instead ("Single-file command: `npx vitest run <file>`, from package.json").
 - When the code does not settle something clearly (two test runners, no obvious single-file command, tests in two different layouts), ask instead of guessing. Offer your best guess as the recommended option and say what points each way. Never present a guess as detected.
+- Leave out options and default bans that cannot apply here: a network-call ban without a network layer, "meet the configured threshold" without a threshold, a "do not run" rule without slow commands.
 - Mark every value you inferred rather than read from the repository. The Phase 3 summary shows `(inferred)` after it.
 
 ### Round 1: Identity and scope
@@ -123,16 +126,16 @@ Put `(inferred)` after every value you inferred rather than detected. Then list 
 3. If `.claude/agents/<name>.md` already exists, show the user what would change and ask before overwriting it.
 4. Write the agent to `.claude/agents/<name>.md` following the template. Every convention must come from the existing tests: write "Component tests use `renderWithProviders` from `tests/utils/render.tsx`", not "use a render helper".
 5. Write documented path patterns with braces, for example `files/{projectId}/{uuid}.docx`. Angle brackets are only for the fill-in slots of the Output template.
-6. Never invent rules, commands, paths or helpers. Anything not found in the repository or given by the user is left out; if it matters, go back and ask.
+6. Never invent rules, commands, paths or helpers. Anything not found in the repository or given by the user is left out; if it matters, go back and ask. A CLI flag of a runner the project already installs (for example Jest's `--findRelatedTests`) is not invented.
 
 ## Phase 5: Validate and hand off
 
 1. Frontmatter: valid YAML; `name` matches the filename; fields in the order `name`, `description`, `tools`, `model`; `tools` is `Read, Grep, Glob, Bash, Edit, Write`.
 2. Body:
-   - Every command named exists in the project (check it against the scripts, Makefile or config).
+   - Every command named exists in the project (check it against the scripts, Makefile, config, or the installed runner's CLI flags).
    - Run the single-file command on one existing test file to confirm it works.
    - The proof commands match the project's setup: dependencies are available in the worktree through `$(git rev-parse --show-toplevel)`, and forced coverage is off.
-   - No `<...>` placeholder or `TODO` remains outside the `## Output` template. Path patterns use `{...}`.
+   - No `<...>` placeholder or `TODO` remains outside the `## Output` template. Path patterns use `{...}`. Angle brackets in real code, such as JSX (`<UserContext.Provider>`) or generics, are not placeholders.
    - The Boundaries include the uncertainty rule, and the Output has an Open questions section.
    - The body is 80–150 lines. It contains no AI or tool attribution: no "generated by" lines and no model or tool named as an author. The "AI-written tests" heading and file names such as `CLAUDE.md` are not attribution.
 3. Offer a dry run, and say that it writes test files into the working tree: "Want me to run it on the current changes? It will add or update test files, which you can review with `git diff`." If yes, delegate to the new agent by name. If the session does not see it yet, run a general-purpose agent with the file's body as its instructions. Show the report, and if the tests or report contain noise, propose specific edits to the agent file.

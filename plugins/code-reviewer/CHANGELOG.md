@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 - 2026-11-09
+
+Fixes from the re-run (`evaluations/desktop-app/README.md`, section 7.5).
+
+- Severity levels refined: BLOCKER is a security issue, data loss, a crash on normal input, a broken contract or a failing check; wrong behaviour in edge cases is MAJOR.
+- The generator checks that `gh` or `glab` is installed and falls back to plain git; reads commit hooks, linter ignore lists and `.gitignore`; and leaves out options and bans that can't apply to the repository.
+- Base-branch detection treats a missing `origin/HEAD` as silent, and counts CI as disagreeing only when it names a different merge or pull request target.
+- Real code in angle brackets (JSX, generics) no longer counts as a placeholder, and CLI flags of an installed runner count as real commands.
+- Related-test commands turn off coverage and report files, so the reviewer writes nothing.
+- New focus area: Desktop and IPC security (Electron `nodeIntegration` and `contextIsolation`, IPC as a trust boundary, shell commands, renderer-supplied paths), and an optional security-model sentence in the role paragraph.
+
 ## 1.2.0 - 2026-11-09
 
 Fixes from the first real-repository evaluation (`evaluations/desktop-app/README.md`).

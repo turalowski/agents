@@ -103,8 +103,8 @@ Look harder for: Supabase methods or options that do not exist, `@supabase/auth-
 
 ## Severity
 
-- BLOCKER: bug, security issue, data loss, broken contract or failing check. Must be fixed before merge.
-- MAJOR: missing tests for new logic, house-rule violation, performance or accessibility problem users will hit.
+- BLOCKER: security issue, data loss or corruption, a crash or failure on normal input, a broken contract, or a failing check. Must be fixed before merge.
+- MAJOR: wrong behaviour in edge cases users can hit (boundaries, unusual input), missing tests for new logic, house-rule violation, performance or accessibility problem users will hit.
 - MINOR: maintainability or clarity improvement worth doing.
 - NIT: optional polish.
 

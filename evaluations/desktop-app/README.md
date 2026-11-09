@@ -1,6 +1,6 @@
 # Evaluation: desktop app, 2026-11-09
 
-This compares a plain prompt with each generated agent on the same uncommitted change in a real repository. It covers `code-reviewer` 1.1.0 and `tester` 1.0.0.
+This compares a plain prompt with each generated agent on the same uncommitted change in a real repository. Sections 1–6 cover the first run, with `code-reviewer` 1.1.0 and `tester` 1.0.0. Section 7 re-runs the agents after the fixes, with `code-reviewer` 1.2.0 and `tester` 1.1.0.
 
 ## 1. Setup
 
@@ -149,8 +149,77 @@ Both generator runs reported problems with the skills, and the runs above add mo
 17. An optional lint step for new test files, when CI lints tests.
 18. Restate the 2.6 severity mapping in the template, so security bugs are BLOCKERs.
 
-## 6. Bottom line
+## 6. Bottom line (first run)
 
 - **code-reviewer:** about the same quality as a plain prompt on a well-documented repository. Its value is consistency: the checks run, severities are stable, there is a verdict, and open questions are kept apart. It needs the fixes above so its focus doesn't cost findings.
 - **tester:** clearly better than a plain prompt. It left the suite green, didn't lock in guesses, proved its tests, and asked about ambiguities.
 - **Generation:** about 190k tokens in total, once per repository. Both agents picked up real conventions of the repository that a plain prompt only gets when `CLAUDE.md` is this thorough.
+
+## 7. Re-run with code-reviewer 1.2.0 and tester 1.1.0
+
+### 7.1 Method
+
+Both agents were regenerated with the new skill versions, from the same clean worktree, with the same "defaults" answers. They then ran on fresh worktrees with the same dummy patch and the same prompts as in 1.3. The plain-prompt runs were not repeated, because they don't depend on the kits; sections 3 and 4 hold their results. Every run is a single sample, so some of the difference between runs is noise.
+
+### 7.2 Generation
+
+| | code-reviewer 1.1.0 → 1.2.0 | tester 1.0.0 → 1.1.0 |
+|---|---|---|
+| Body length | 159, trimmed to 150 → **145, no trimming** | 115 → 113 |
+| Base branch | `dev`, chosen without citing a source → `dev` from `CLAUDE.md` and 46 of 48 merges | same |
+| Test command | full `npm test` → `npx jest --findRelatedTests` with coverage and the junit reporter off | single-file and proof commands now turn coverage off |
+| Inferred values | not marked → marked `(inferred)` | same |
+| Known issues | handled with an ad hoc note → detected (the known-bugs section of `CLAUDE.md`) | detected; never asserted |
+| Banned patterns | defaults → searched first; scoped to `src/`, constant SQL fragments allowed | searched first; `container.querySelector` and `fireEvent` allowed for file inputs |
+| Mocking | n/a | boundaries only, against the code's practice → **follow existing tests** (24 files mock collaborators) |
+| Cost | 98.7k → 97.4k tokens | 90.1k → 93.5k tokens |
+
+### 7.3 Code review
+
+| | Plain | Agent 1.1.0 | Agent 1.2.0 |
+|---|---|---|---|
+| Seeded flaws found | 11 / 11 | 9 / 11 | **11 / 11** |
+| Bad input (#9) and byte decimals (#10) | ✅ | ❌ | ✅ |
+| Duplicates the client-side search | ✅ | ❌ | ✅, with the exact differences (case, trimming) |
+| `file:line` on every finding | partly | no (function names) | **yes; all line numbers checked and correct** |
+| Ran checks | no | lint, full suite | lint, related tests (and noted they don't cover the new code) |
+| Ambiguity → Open questions | no | yes | yes |
+| Verdict | none | REQUEST CHANGES | REQUEST CHANGES |
+| Cost | 54.5k, 33 s | 54.0k, 76 s | 54.4k, 66 s |
+
+The second read without the checklist (fix 11) and `path:line` from the diff (fix 10) closed the gaps from section 3.4. The agent now matches the plain prompt on findings, at the same token cost, while keeping its consistency: checks run, fixed severities, a verdict, and open questions kept apart. The only finding the plain review had that 1.2.0 did not was the duplicate-name collision ("X (copy)" twice).
+
+### 7.4 Tests
+
+| | Plain | Agent 1.0.0 | Agent 1.1.0 |
+|---|---|---|---|
+| Tests added | 36 (9 failing) | 12 | 8 |
+| Suite afterwards | red | green | green (80 suites, 382 tests) |
+| Locked-in guesses | documents, wildcards | none | none |
+| Proof | none | 12 "failed on base" only because the code was missing (meaningless) | **8 failed under real mutations** (wrong channel, `toFixed(0)`, ÷1000, `ASC`, missing `%`, dropped " (copy)") |
+| Bug severities | n/a | injection MAJOR | injection and swallowed error BLOCKER; size bugs MAJOR |
+| Ambiguities asked | none | documents, validation, decimals, case | documents, error message, wildcards, tie-break order |
+| Line references | n/a | function names | one `file:line`, and it was wrong (`format.js:20`, the loop is on 23) |
+| Cost | 57.7k, 60 s | 66.1k, 128 s | 67.0k, 141 s |
+
+The mutation proof (fix 13) works: every new test is now shown to catch a real change in behaviour, not just a missing function. Severity drift is only partly fixed. The template defines any bug as a BLOCKER, but the agent still rated the `formatFileSize` bugs MAJOR. It also stopped asking about bad input (`undefined`, `NaN`, negative numbers) and skipped validation, which 1.0.0 raised. That may be run-to-run noise.
+
+### 7.5 Remaining fixes
+
+The re-run and both generators point to these next changes. All 10 were applied in code-reviewer 1.3.0 and tester 1.2.0; they have not been re-evaluated yet. Fix 2 refined the shared severity definition in 2.6, since both agents rated the size bugs MAJOR in both runs.
+
+1. **Line numbers in the tester:** require `path:line` from `grep -n`, as the reviewer does; its one line reference was wrong.
+2. **Severity in the tester:** spell out that every confirmed bug is at least a BLOCKER per the definition, or relax the definition to separate crashes and security issues from wrong formatting.
+3. **Related-test commands must not write files:** turn off coverage and file reporters (here jest-junit into `artifacts/`) for a read-only reviewer, and count runner CLI flags of an installed dependency as existing commands.
+4. **Tool availability:** check that `gh` or `glab` is installed, and fall back to plain git when it isn't.
+5. **Real JSX vs placeholders:** the `<...>` check flags real code such as `<AppContext.Provider>`; exempt code that exists in the repo.
+6. **Base branch from CI:** CI disagrees with the docs only when it names a different merge request target, not when it also runs on `main`.
+7. **Focus areas for desktop apps:** Electron or IPC security (`nodeIntegration`, `contextIsolation`, the renderer as a trust boundary, shell exec) fits no option, and needs a slot for the project's security model.
+8. **Irrelevant defaults:** drop default bans and interview options that don't apply (no network layer, no coverage threshold, no slow suites).
+9. **Ignored paths:** also read the linter ignore list and `.gitignore`, and include fixture and runtime-data folders.
+10. **Hooks:** read `.husky/` and lint-staged configs during discovery.
+
+### 7.6 Bottom line
+
+- **code-reviewer 1.2.0** now finds as much as a plain prompt (11/11), with correct line numbers, at the same cost, and adds checks, stable severities, a verdict and separate open questions. It is worth using over a plain prompt.
+- **tester 1.1.0** keeps the lead from the first run, and its proof is now real. Its remaining weaknesses are line references and severity.
