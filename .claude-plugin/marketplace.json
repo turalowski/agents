@@ -9,6 +9,11 @@
       "name": "code-reviewer",
       "source": "./plugins/code-reviewer",
       "description": "Generates a code-review subagent tailored to your repository."
+    },
+    {
+      "name": "tester",
+      "source": "./plugins/tester",
+      "description": "Generates a test-writing subagent tailored to your repository."
     }
   ]
 }

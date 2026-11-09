@@ -328,7 +328,7 @@ The kit in `plugins/code-reviewer/` was built from the original draft generator 
 
 ## 4. tester
 
-Status: not started
+Status: built, end-to-end check in 2.7 pending
 
 ### 4.1 Purpose
 
@@ -356,7 +356,8 @@ The questions come in four rounds, with a fifth round only for follow-ups. Quest
 6. Proof that tests work: check that each new test fails without the change (default), or skip this check. The check runs in a temporary git worktree of the base commit and never touches the user's working tree.
 7. Coverage: no target (default), meet the project's configured threshold, or reach a percentage the user gives for changed lines.
 8. Support code: the agent may add test helpers and fixtures but never dependencies (default), may add neither, or may also propose new test dependencies in its report without installing them.
-9. House rules, banned patterns and ignored paths, asked in plain text and proposed from the existing tests and docs. Examples: "use the factories in `tests/factories/`", "no snapshot tests for logic", "every API route has an integration test".
+9. Extra scrutiny for AI-written tests: yes (default) or no.
+10. House rules, banned patterns and ignored paths, asked in plain text and proposed from the existing tests and docs. Examples: "use the factories in `tests/factories/`", "no snapshot tests for logic", "every API route has an integration test".
 
 ### 4.5 Generated agent
 
@@ -388,3 +389,7 @@ The first sample is for the same Next.js 15 and React 19 app on Supabase used in
 3. A dry run on a diff with new logic adds tests in the project's existing location, naming and style. The tests pass on the current code and, with proof enabled, fail on the base commit.
 4. A dry run on a bug-fix diff produces a reproduction test that fails on the base commit and passes on the current code.
 5. After a run, the only changes in the working tree are test files and test support code, no existing test has been weakened or skipped, and the temporary worktree has been removed.
+
+### 4.8 Implementation notes
+
+The kit in `plugins/tester/` contains the generator skill, the agent template, the two samples, a README and a CHANGELOG. It is listed in `marketplace.json` and the root `README.md`. Three decisions were made while building it. First, 4.4 gained question 9, because 4.5 makes the AI-written tests section optional but no question selected it. Second, a test that exposes a production bug is removed from the working tree and included in the report, so the suite stays green and the user decides when to fix the bug. Third, the proof step needs the project's dependencies inside the temporary worktree, so the generator records how to provide them, for example a symlinked `node_modules` or the existing virtualenv, and Phase 5 checks it.

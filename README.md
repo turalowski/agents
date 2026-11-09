@@ -23,6 +23,7 @@ Run a kit's generator in your project with `/<kit>:create`, answer the questions
 | Kit | Generates | Run |
 |---|---|---|
 | [code-reviewer](plugins/code-reviewer/README.md) | A code-review subagent that checks changes against your stack, house rules and checks, and ends with a verdict | `/code-reviewer:create` |
+| [tester](plugins/tester/README.md) | A test-writing subagent that adds tests in your project's style and proves each one fails without the change | `/tester:create` |
 
 ## Contributing
 
