@@ -1,6 +1,32 @@
 # agents
 
-Claude Code agent kits. Each kit is a plugin with a generator skill: it reads your repository, interviews you, and writes a subagent tailored to your project into `.claude/agents/`.
+Claude Code agents that know your repository. Generic AI reviewers and test writers give generic advice. Each kit here reads your codebase (stack, commands, conventions, CI), asks you a few questions, and writes a subagent into `.claude/agents/` that follows your project's real rules.
+
+- **[code-reviewer](plugins/code-reviewer/README.md)** reviews changes against your checks and house rules, cites exact lines, and ends with a verdict.
+- **[tester](plugins/tester/README.md)** writes tests in your project's style, proves that each one catches the change, and asks about unclear behaviour instead of guessing.
+
+Both were measured against a plain prompt on a real repository: see [Does it make a difference?](#does-it-make-a-difference) The repository was built with Claude Code from a spec. [REQUIREMENTS.md](REQUIREMENTS.md) defines the pattern every kit follows, and each kit was implemented step by step, evaluated, and revised from the results.
+
+What a generated reviewer's output looks like (shortened, from the evaluation):
+
+```text
+## Review: uncommitted changes
+
+**Checks:** lint ✅ · related tests ✅
+
+### BLOCKER
+
+- `db/projects.js:152`: the search value is pasted straight into the SQL text,
+  which allows SQL injection. A query containing `'` breaks the statement.
+  > `${PROJECT_SELECT} WHERE p.name LIKE '%${query}%' ORDER BY p.updated_at DESC`
+  Fix: bind the value with `LIKE ? ESCAPE '\'` and check that `query` is a string.
+
+### Open questions
+
+- What should "duplicate" copy: name and description only, or the documents too?
+
+**Verdict:** REQUEST CHANGES
+```
 
 ## Install
 

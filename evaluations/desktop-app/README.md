@@ -16,7 +16,7 @@ A small "project search and duplicate" feature plus a file-size formatter: 7 fil
 | --- | -------------------- | -------------------------------------------------------------------------------------- |
 | 1   | `searchProjects`     | SQL built by interpolation, `LIKE '%${query}%'`: injection, and a `'` breaks the query |
 | 2   | `projects:duplicate` | `catch` logs and swallows the error, so the channel reports success with no data       |
-| 3   | `projects:duplicate` | No user-facing error for a missing project                                                   |
+| 3   | `projects:duplicate` | No user-facing error for a missing project                                             |
 | 4   | `projects:duplicate` | Skips `validateName`, the project folder and the manifest that `createProject` creates |
 | 5   | `projects:duplicate` | `console.log` in the main process                                                      |
 | 6   | `projects:duplicate` | **Ambiguous:** documents are not copied. Is that intended?                             |
@@ -58,7 +58,7 @@ Both generators found real, repository-specific conventions. Examples: a dedicat
 | ------------------------------------ | ---------------------------------------------- | ---------------------------------------------- |
 | 1 SQL injection                      | ✅ Blocking                                    | ✅ BLOCKER                                     |
 | 2 Swallowed error                    | ✅ Blocking                                    | ✅ BLOCKER                                     |
-| 3 No user-facing error                     | ✅                                             | ✅                                             |
+| 3 No user-facing error               | ✅                                             | ✅                                             |
 | 4 Skips validation, folder, manifest | ✅                                             | ✅ (also names house rule 5: transactions)     |
 | 5 `console.log`                      | mentioned with #2                              | quoted with #2                                 |
 | 6 Documents not copied (ambiguous)   | ✅ reported as Blocking, "if intended, say so" | ✅ BLOCKER, **and** asked under Open questions |
@@ -169,7 +169,7 @@ Both agents were regenerated with the new skill versions, from the same clean wo
 | Base branch     | `dev`, chosen without citing a source → `dev` from `CLAUDE.md` and 46 of 48 merges       | same                                                                                                   |
 | Test command    | full `npm test` → `npx jest --findRelatedTests` with coverage and the junit reporter off | single-file and proof commands now turn coverage off                                                   |
 | Inferred values | not marked → marked `(inferred)`                                                         | same                                                                                                   |
-| Known issues    | handled with an ad hoc note → detected (the known-bugs section of `CLAUDE.md`)                     | detected; never asserted                                                                               |
+| Known issues    | handled with an ad hoc note → detected (the known-bugs section of `CLAUDE.md`)           | detected; never asserted                                                                               |
 | Banned patterns | defaults → searched first; scoped to `src/`, constant SQL fragments allowed              | searched first; `container.querySelector` and `fireEvent` allowed for file inputs                      |
 | Mocking         | n/a                                                                                      | boundaries only, against the code's practice → **follow existing tests** (24 files mock collaborators) |
 | Cost            | 98.7k → 97.4k tokens                                                                     | 90.1k → 93.5k tokens                                                                                   |
