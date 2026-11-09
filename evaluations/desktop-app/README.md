@@ -163,44 +163,44 @@ Both agents were regenerated with the new skill versions, from the same clean wo
 
 ### 7.2 Generation
 
-| | code-reviewer 1.1.0 → 1.2.0 | tester 1.0.0 → 1.1.0 |
-|---|---|---|
-| Body length | 159, trimmed to 150 → **145, no trimming** | 115 → 113 |
-| Base branch | `dev`, chosen without citing a source → `dev` from `CLAUDE.md` and 46 of 48 merges | same |
-| Test command | full `npm test` → `npx jest --findRelatedTests` with coverage and the junit reporter off | single-file and proof commands now turn coverage off |
-| Inferred values | not marked → marked `(inferred)` | same |
-| Known issues | handled with an ad hoc note → detected (the known-bugs section of `CLAUDE.md`) | detected; never asserted |
-| Banned patterns | defaults → searched first; scoped to `src/`, constant SQL fragments allowed | searched first; `container.querySelector` and `fireEvent` allowed for file inputs |
-| Mocking | n/a | boundaries only, against the code's practice → **follow existing tests** (24 files mock collaborators) |
-| Cost | 98.7k → 97.4k tokens | 90.1k → 93.5k tokens |
+|                 | code-reviewer 1.1.0 → 1.2.0                                                              | tester 1.0.0 → 1.1.0                                                                                   |
+| --------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Body length     | 159, trimmed to 150 → **145, no trimming**                                               | 115 → 113                                                                                              |
+| Base branch     | `dev`, chosen without citing a source → `dev` from `CLAUDE.md` and 46 of 48 merges       | same                                                                                                   |
+| Test command    | full `npm test` → `npx jest --findRelatedTests` with coverage and the junit reporter off | single-file and proof commands now turn coverage off                                                   |
+| Inferred values | not marked → marked `(inferred)`                                                         | same                                                                                                   |
+| Known issues    | handled with an ad hoc note → detected (the known-bugs section of `CLAUDE.md`)                     | detected; never asserted                                                                               |
+| Banned patterns | defaults → searched first; scoped to `src/`, constant SQL fragments allowed              | searched first; `container.querySelector` and `fireEvent` allowed for file inputs                      |
+| Mocking         | n/a                                                                                      | boundaries only, against the code's practice → **follow existing tests** (24 files mock collaborators) |
+| Cost            | 98.7k → 97.4k tokens                                                                     | 90.1k → 93.5k tokens                                                                                   |
 
 ### 7.3 Code review
 
-| | Plain | Agent 1.1.0 | Agent 1.2.0 |
-|---|---|---|---|
-| Seeded flaws found | 11 / 11 | 9 / 11 | **11 / 11** |
-| Bad input (#9) and byte decimals (#10) | ✅ | ❌ | ✅ |
-| Duplicates the client-side search | ✅ | ❌ | ✅, with the exact differences (case, trimming) |
-| `file:line` on every finding | partly | no (function names) | **yes; all line numbers checked and correct** |
-| Ran checks | no | lint, full suite | lint, related tests (and noted they don't cover the new code) |
-| Ambiguity → Open questions | no | yes | yes |
-| Verdict | none | REQUEST CHANGES | REQUEST CHANGES |
-| Cost | 54.5k, 33 s | 54.0k, 76 s | 54.4k, 66 s |
+|                                        | Plain       | Agent 1.1.0         | Agent 1.2.0                                                   |
+| -------------------------------------- | ----------- | ------------------- | ------------------------------------------------------------- |
+| Seeded flaws found                     | 11 / 11     | 9 / 11              | **11 / 11**                                                   |
+| Bad input (#9) and byte decimals (#10) | ✅          | ❌                  | ✅                                                            |
+| Duplicates the client-side search      | ✅          | ❌                  | ✅, with the exact differences (case, trimming)               |
+| `file:line` on every finding           | partly      | no (function names) | **yes; all line numbers checked and correct**                 |
+| Ran checks                             | no          | lint, full suite    | lint, related tests (and noted they don't cover the new code) |
+| Ambiguity → Open questions             | no          | yes                 | yes                                                           |
+| Verdict                                | none        | REQUEST CHANGES     | REQUEST CHANGES                                               |
+| Cost                                   | 54.5k, 33 s | 54.0k, 76 s         | 54.4k, 66 s                                                   |
 
 The second read without the checklist (fix 11) and `path:line` from the diff (fix 10) closed the gaps from section 3.4. The agent now matches the plain prompt on findings, at the same token cost, while keeping its consistency: checks run, fixed severities, a verdict, and open questions kept apart. The only finding the plain review had that 1.2.0 did not was the duplicate-name collision ("X (copy)" twice).
 
 ### 7.4 Tests
 
-| | Plain | Agent 1.0.0 | Agent 1.1.0 |
-|---|---|---|---|
-| Tests added | 36 (9 failing) | 12 | 8 |
-| Suite afterwards | red | green | green (80 suites, 382 tests) |
-| Locked-in guesses | documents, wildcards | none | none |
-| Proof | none | 12 "failed on base" only because the code was missing (meaningless) | **8 failed under real mutations** (wrong channel, `toFixed(0)`, ÷1000, `ASC`, missing `%`, dropped " (copy)") |
-| Bug severities | n/a | injection MAJOR | injection and swallowed error BLOCKER; size bugs MAJOR |
-| Ambiguities asked | none | documents, validation, decimals, case | documents, error message, wildcards, tie-break order |
-| Line references | n/a | function names | one `file:line`, and it was wrong (`format.js:20`, the loop is on 23) |
-| Cost | 57.7k, 60 s | 66.1k, 128 s | 67.0k, 141 s |
+|                   | Plain                | Agent 1.0.0                                                         | Agent 1.1.0                                                                                                   |
+| ----------------- | -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tests added       | 36 (9 failing)       | 12                                                                  | 8                                                                                                             |
+| Suite afterwards  | red                  | green                                                               | green (80 suites, 382 tests)                                                                                  |
+| Locked-in guesses | documents, wildcards | none                                                                | none                                                                                                          |
+| Proof             | none                 | 12 "failed on base" only because the code was missing (meaningless) | **8 failed under real mutations** (wrong channel, `toFixed(0)`, ÷1000, `ASC`, missing `%`, dropped " (copy)") |
+| Bug severities    | n/a                  | injection MAJOR                                                     | injection and swallowed error BLOCKER; size bugs MAJOR                                                        |
+| Ambiguities asked | none                 | documents, validation, decimals, case                               | documents, error message, wildcards, tie-break order                                                          |
+| Line references   | n/a                  | function names                                                      | one `file:line`, and it was wrong (`format.js:20`, the loop is on 23)                                         |
+| Cost              | 57.7k, 60 s          | 66.1k, 128 s                                                        | 67.0k, 141 s                                                                                                  |
 
 The mutation proof (fix 13) works: every new test is now shown to catch a real change in behaviour, not just a missing function. Severity drift is only partly fixed. The template defines any bug as a BLOCKER, but the agent still rated the `formatFileSize` bugs MAJOR. It also stopped asking about bad input (`undefined`, `NaN`, negative numbers) and skipped validation, which 1.0.0 raised. That may be run-to-run noise.
 

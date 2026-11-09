@@ -20,10 +20,10 @@ Run a kit's generator in your project with `/<kit>:create`, answer the questions
 
 ## Kits
 
-| Kit | Generates | Run |
-|---|---|---|
+| Kit                                              | Generates                                                                                                      | Run                     |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
 | [code-reviewer](plugins/code-reviewer/README.md) | A code-review subagent that checks changes against your stack, house rules and checks, and ends with a verdict | `/code-reviewer:create` |
-| [tester](plugins/tester/README.md) | A test-writing subagent that adds tests in your project's style and proves each one fails without the change | `/tester:create` |
+| [tester](plugins/tester/README.md)               | A test-writing subagent that adds tests in your project's style and proves each one fails without the change   | `/tester:create`        |
 
 ## Does it make a difference?
 
@@ -33,14 +33,14 @@ We tested both kits on a real Electron + React repository, comparing a plain pro
 
 Plain prompt: "Review the uncommitted changes".
 
-| | Plain prompt | code-reviewer 1.1.0 | code-reviewer 1.2.0 |
-|---|---|---|---|
-| Planted flaws found | 11 / 11 | 9 / 11 | **11 / 11** |
-| `file:line` on every finding | partly | no | **yes, all correct** |
-| Ran the project's lint and tests | no | yes | yes |
-| Ambiguities listed as open questions, not asserted | no | yes | yes |
-| Fixed severity levels and a verdict | no | yes | yes |
-| Tokens | 54.5k | 54.0k | 54.4k |
+|                                                    | Plain prompt | code-reviewer 1.1.0 | code-reviewer 1.2.0  |
+| -------------------------------------------------- | ------------ | ------------------- | -------------------- |
+| Planted flaws found                                | 11 / 11      | 9 / 11              | **11 / 11**          |
+| `file:line` on every finding                       | partly       | no                  | **yes, all correct** |
+| Ran the project's lint and tests                   | no           | yes                 | yes                  |
+| Ambiguities listed as open questions, not asserted | no           | yes                 | yes                  |
+| Fixed severity levels and a verdict                | no           | yes                 | yes                  |
+| Tokens                                             | 54.5k        | 54.0k               | 54.4k                |
 
 On a well-documented repository, a plain prompt already finds a lot. The first agent version found less than the plain prompt, because its checklist narrowed its attention. Version 1.2.0 adds a second read without the checklist, and now finds just as much at the same token cost. On top of that, it runs your checks, uses stable severities, gives a verdict, and keeps open questions apart from findings.
 
@@ -48,14 +48,14 @@ On a well-documented repository, a plain prompt already finds a lot. The first a
 
 Plain prompt: "Generate tests for uncommitted changes".
 
-| | Plain prompt | tester 1.0.0 | tester 1.1.0 |
-|---|---|---|---|
-| Suite after the run | **red: 9 failing tests left behind** | green | green |
-| Guesses about ambiguous behaviour written into tests | **2** | 0 | 0 |
-| Bugs found | 5 | 6 | 4, plus 3 open questions |
-| Bug-exposing tests | left failing in the suite | in the report, ready to add | in the report, ready to add |
-| Proof that each test catches the change | none | weak (code missing on base) | **every test fails under a real mutation** |
-| Tokens | 57.7k | 66.1k | 67.0k |
+|                                                      | Plain prompt                         | tester 1.0.0                | tester 1.1.0                               |
+| ---------------------------------------------------- | ------------------------------------ | --------------------------- | ------------------------------------------ |
+| Suite after the run                                  | **red: 9 failing tests left behind** | green                       | green                                      |
+| Guesses about ambiguous behaviour written into tests | **2**                                | 0                           | 0                                          |
+| Bugs found                                           | 5                                    | 6                           | 4, plus 3 open questions                   |
+| Bug-exposing tests                                   | left failing in the suite            | in the report, ready to add | in the report, ready to add                |
+| Proof that each test catches the change              | none                                 | weak (code missing on base) | **every test fails under a real mutation** |
+| Tokens                                               | 57.7k                                | 66.1k                       | 67.0k                                      |
 
 Here the agent makes a clear difference. The plain prompt wrote more tests, but it left the suite red, and it wrote two guesses about ambiguous behaviour into assertions. A later fix would break those tests. The agent left the suite green, put the bug-exposing tests in its report for you to add after the fixes, asked about the ambiguous behaviour instead of guessing, and proved that each test catches a real change in behaviour.
 
@@ -68,3 +68,9 @@ Here the agent makes a clear difference. The plain prompt wrote more tests, but 
 ## Contributing
 
 Every kit follows [REQUIREMENTS.md](REQUIREMENTS.md).
+
+Markdown is formatted with Prettier by a pre-commit hook. Enable it once per clone (it needs Node.js):
+
+```text
+git config core.hooksPath .githooks
+```

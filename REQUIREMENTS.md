@@ -44,6 +44,9 @@ Every kit follows the patterns below, so all kits share one syntax, one structur
 .
 ├── REQUIREMENTS.md
 ├── LICENSE                                ← MIT, covers every kit
+├── .prettierrc                            ← Markdown formatting
+├── .githooks/
+│   └── pre-commit                         ← formats staged .md files
 ├── README.md                              ← catalogue of kits + install instructions
 ├── .claude-plugin/
 │   └── marketplace.json                   ← lists every kit
@@ -177,14 +180,14 @@ model: inherit | sonnet | opus
   - Read-only with checks: `Read, Grep, Glob, Bash`
   - Editing: `Read, Grep, Glob, Bash, Edit, Write`. Only for agents whose job is to change code, and never for reviewing or auditing agents unless the user explicitly chooses it.
 
-The body is written in the second person ("You are..."), with sections in this order. Required sections are marked *.
+The body is written in the second person ("You are..."), with sections in this order. Required sections are marked \*.
 
-1. Role paragraph* (no heading): who the agent is, what this project is, what it protects or produces.
-2. `## Inputs`*: how the agent gets its input, using real commands and the real base branch. Includes a fallback when the base branch or remote is missing, and "If there is nothing to <act on>, say so and stop."
-3. `## Procedure`*: numbered steps. The last two are always "Verify every finding or change" and "Write the output".
+1. Role paragraph\* (no heading): who the agent is, what this project is, what it protects or produces.
+2. `## Inputs`\*: how the agent gets its input, using real commands and the real base branch. Includes a fallback when the base branch or remote is missing, and "If there is nothing to <act on>, say so and stop."
+3. `## Procedure`\*: numbered steps. The last two are always "Verify every finding or change" and "Write the output".
 4. Domain sections, which vary by kit. For evaluating agents these are `## Checklist`, `## House rules`, `## Banned patterns` and `## AI-written code`, then `## Severity`.
-5. `## Boundaries`*: what the agent must never do, the paths it ignores, and the untrusted-input rule below.
-6. `## Output`*: the exact output template in a fenced block, followed by its rules.
+5. `## Boundaries`\*: what the agent must never do, the paths it ignores, and the untrusted-input rule below.
+6. `## Output`\*: the exact output template in a fenced block, followed by its rules.
 
 Content rules:
 

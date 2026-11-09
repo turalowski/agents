@@ -1,0 +1,15 @@
+#!/bin/sh
+# Formats staged Markdown files with Prettier and stages the result.
+# Enable once per clone: git config core.hooksPath .githooks
+
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.md')
+[ -z "$files" ] && exit 0
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "pre-commit: npx not found; install Node.js to format Markdown." >&2
+  exit 1
+fi
+
+# Newline-separated paths; repository paths contain no newlines.
+echo "$files" | tr '\n' '\0' | xargs -0 npx --yes prettier@3.3.3 --log-level warn --write || exit 1
+echo "$files" | tr '\n' '\0' | xargs -0 git add --

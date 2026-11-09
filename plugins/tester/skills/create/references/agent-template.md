@@ -1,6 +1,6 @@
 # Agent template
 
-The generated agent must follow this structure exactly. Text in `<angle brackets>` is filled in from the discovery and the interview. Sections marked *(if selected)* appear only when the user chose them. Everything else is fixed wording; keep it as written, except where a note says to adapt it.
+The generated agent must follow this structure exactly. Text in `<angle brackets>` is filled in from the discovery and the interview. Sections marked _(if selected)_ appear only when the user chose them. Everything else is fixed wording; keep it as written, except where a note says to adapt it.
 
 ## Frontmatter
 
@@ -126,7 +126,7 @@ Omit empty sections. Severities: BLOCKER for a security issue, data loss or corr
 
 ## Adapting the template
 
-- **Section order:** role paragraph, Inputs, Procedure, Test conventions, What to test, Mocking, House rules, Banned patterns, AI-written tests *(if selected)*, Boundaries, Output. Omit House rules or Banned patterns only if the user gave none.
+- **Section order:** role paragraph, Inputs, Procedure, Test conventions, What to test, Mocking, House rules, Banned patterns, AI-written tests _(if selected)_, Boundaries, Output. Omit House rules or Banned patterns only if the user gave none.
 - **Diff command:** for staged changes use `git diff --staged`, and for uncommitted changes `git diff HEAD`; the Inputs fallback line is then not needed.
 - **Proof off:** remove step 6 of the Procedure and the Proof line of the Output. Renumber the steps.
 - **Coverage target:** add a step after the related suite: "Run `<coverage command>` for the changed files and report coverage of changed lines against <target>." Add a Coverage line to Runs.

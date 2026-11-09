@@ -1,6 +1,6 @@
 # Agent template
 
-The generated agent must follow this structure exactly. Text in `<angle brackets>` is filled in from the discovery and the interview. Sections marked *(if selected)* appear only when the user chose them. Everything else is fixed wording; keep it as written, except where a note says to adapt it.
+The generated agent must follow this structure exactly. Text in `<angle brackets>` is filled in from the discovery and the interview. Sections marked _(if selected)_ appear only when the user chose them. Everything else is fixed wording; keep it as written, except where a note says to adapt it.
 
 ## Frontmatter
 
@@ -23,11 +23,11 @@ On GitLab, write "merge request" instead of "pull request", here and in the body
 
 Tool presets (no other combinations):
 
-| Permission choice | `tools` |
-|---|---|
-| Read-only with fast checks (default) | `Read, Grep, Glob, Bash` |
-| Strictly read-only | `Read, Grep, Glob` |
-| May fix nits | `Read, Grep, Glob, Bash, Edit, Write` |
+| Permission choice                    | `tools`                               |
+| ------------------------------------ | ------------------------------------- |
+| Read-only with fast checks (default) | `Read, Grep, Glob, Bash`              |
+| Strictly read-only                   | `Read, Grep, Glob`                    |
+| May fix nits                         | `Read, Grep, Glob, Bash, Edit, Write` |
 
 ## Body
 
@@ -134,7 +134,7 @@ Omit empty sections. Open questions do not change the verdict. Any BLOCKER or MA
 
 ## Adapting the template
 
-- **Section order:** role paragraph, Inputs, Procedure, Checklist, House rules, Banned patterns, AI-written code *(if selected)*, Severity, Boundaries, Output. Omit House rules or Banned patterns only if the user gave none.
+- **Section order:** role paragraph, Inputs, Procedure, Checklist, House rules, Banned patterns, AI-written code _(if selected)_, Severity, Boundaries, Output. Omit House rules or Banned patterns only if the user gave none.
 - **Diff command:** for staged changes use `git diff --staged`, and for uncommitted changes `git diff HEAD`; the Inputs fallback line is then not needed.
 - **Strictness line:**
   - Light: "report BLOCKER only."

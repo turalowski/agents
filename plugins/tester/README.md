@@ -46,19 +46,19 @@ To use it, say "write tests for my changes", or mention the agent with `@tester`
 
 ## Interview options
 
-| Option | Choices | Default |
-|---|---|---|
-| Name | any lowercase, hyphenated name | `tester` |
-| When it runs | only when asked · proactively after logic changes · before a PR | only when asked |
-| What it covers | branch diff · staged · uncommitted | branch diff against the detected base branch |
-| Model | inherit · sonnet · opus | inherit |
-| Test layers | unit, component, integration, end-to-end | the layers your repo has, without end-to-end |
-| Mocking | system boundaries only · follow existing tests · real database | system boundaries only |
-| Proof | fail-on-base check in a temporary worktree · off | on |
-| Coverage | none · project threshold · a percentage for changed lines | none |
-| Support code | helpers but no dependencies · neither · helpers and proposed dependencies | helpers but no dependencies |
-| AI-written test scrutiny | yes · no | yes |
-| House rules, banned patterns, ignored paths | free text | proposed from your tests and docs |
+| Option                                      | Choices                                                                   | Default                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------- |
+| Name                                        | any lowercase, hyphenated name                                            | `tester`                                     |
+| When it runs                                | only when asked · proactively after logic changes · before a PR           | only when asked                              |
+| What it covers                              | branch diff · staged · uncommitted                                        | branch diff against the detected base branch |
+| Model                                       | inherit · sonnet · opus                                                   | inherit                                      |
+| Test layers                                 | unit, component, integration, end-to-end                                  | the layers your repo has, without end-to-end |
+| Mocking                                     | system boundaries only · follow existing tests · real database            | system boundaries only                       |
+| Proof                                       | fail-on-base check in a temporary worktree · off                          | on                                           |
+| Coverage                                    | none · project threshold · a percentage for changed lines                 | none                                         |
+| Support code                                | helpers but no dependencies · neither · helpers and proposed dependencies | helpers but no dependencies                  |
+| AI-written test scrutiny                    | yes · no                                                                  | yes                                          |
+| House rules, banned patterns, ignored paths | free text                                                                 | proposed from your tests and docs            |
 
 ## Update
 
