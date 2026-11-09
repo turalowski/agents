@@ -1,0 +1,14 @@
+{
+  "name": "turalowski-agents",
+  "owner": {
+    "name": "turalowski"
+  },
+  "description": "Claude Code agent kits that generate subagents tailored to your repository.",
+  "plugins": [
+    {
+      "name": "code-reviewer",
+      "source": "./plugins/code-reviewer",
+      "description": "Generates a code-review subagent tailored to your repository."
+    }
+  ]
+}
