@@ -11,6 +11,11 @@
       "description": "Generates a code-review subagent tailored to your repository."
     },
     {
+      "name": "designer",
+      "source": "./plugins/designer",
+      "description": "Generates a UI design subagent that builds with shadcn/ui and your design tokens."
+    },
+    {
       "name": "tester",
       "source": "./plugins/tester",
       "description": "Generates a test-writing subagent tailored to your repository."

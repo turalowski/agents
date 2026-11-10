@@ -409,3 +409,70 @@ The first sample is for the same Next.js 15 and React 19 app on Supabase used in
 The kit in `plugins/tester/` contains the generator skill, the agent template, the two samples, a README and a CHANGELOG. It is listed in `marketplace.json` and the root `README.md`. Three decisions were made while building it. First, 4.4 gained question 9, because 4.5 makes the AI-written tests section optional but no question selected it. Second, a test that exposes a production bug is removed from the working tree and included in the report, so the suite stays green and the user decides when to fix the bug. Third, the proof step needs the project's dependencies inside the temporary worktree, so the generator records how to provide them, for example a symlinked `node_modules` or the existing virtualenv, and Phase 5 checks it.
 
 Two evaluation rounds on a real repository (`evaluations/desktop-app/README.md`) shaped the final kit: a mutation proof for new code, forced coverage turned off, `git rev-parse --show-toplevel` in proof commands, a mocking-practice check during discovery, per-area naming rules, an optional lint step, `path:line` for every bug, and the refined severities in 2.6. The shared parts went into 2.4 and 2.5.
+
+## 5. designer
+
+Status: built, end-to-end check in 2.7 pending
+
+### 5.1 Purpose
+
+The kit generates a subagent that designs and builds user interface in the project's own design language, using shadcn/ui components and the project's design tokens only. The goal is a distinctive interface, not a generic one. Generic output usually comes from missing decisions: no audience, no personality, and the library's default theme. So the generator interviews the user for a design direction once per repository and writes it into the agent as concrete, checkable choices. The agent then applies that direction to every screen it builds. It runs when the user asks ("design the billing page", "restyle the dashboard").
+
+### 5.2 Type and tools
+
+This is a producing agent, so it uses the editing preset: `Read, Grep, Glob, Bash, Edit, Write`. It edits UI code: pages, feature components and styles. It changes token values in the theme stylesheet only when the request is about the theme. It adds shadcn/ui components only through the shadcn CLI. It never installs another UI or styling library, and it does not rewrite the generated primitives in the shadcn components folder unless the user asks. It does not give a verdict.
+
+### 5.3 Discover
+
+Beyond the 2.4 defaults, the generator reads `components.json` for the shadcn style, the Tailwind CSS file, the base colour, the icon library, the aliases and any extra registries. It reads the theme stylesheet to record every token the project defines in light and dark mode, the colour format (OKLCH or HSL) and how tokens reach Tailwind (`@theme inline` in Tailwind v4, or `tailwind.config.*` in v3). It lists the components already installed in the components folder, and checks whether anything has been customised away from the shadcn source. It records the fonts and how they load, for example `next/font`, the icon set, any motion library, and how dark mode is switched.
+
+It reads two or three existing screens to learn the layout patterns, the spacing rhythm and the composition the team already uses. It then searches the UI code for token bypasses: raw palette classes such as `bg-blue-500`, hex or `rgb()` values in class names or inline styles, and arbitrary values such as `p-[13px]`. The count shapes the default banned patterns. Last, it decides whether the theme is still the untouched shadcn default for its base colour. If it is, the interview treats colour and type as open decisions instead of detected ones.
+
+### 5.4 Interview
+
+The questions come in four rounds, with a fifth round only for follow-ups. Questions the repository already answers are skipped.
+
+1. When it runs: only when asked (default), or proactively when a change adds or restyles UI.
+2. Model: inherit (default), sonnet or opus.
+3. Product and audience, in plain text: what the product is, who uses it, and in what setting. Proposed from the README.
+4. Personality: one of four contrasting directions written for this product, such as editorial and calm, technical and dense, warm and tactile, or bold and graphic. The user can also describe their own.
+5. References and anti-references, in plain text: products whose feel the user admires, and what they never want to see.
+6. Colour: keep the current palette (default when it is customised), or build a palette from a brand hue the user gives. The questions cover the temperature of the neutrals and where the accent is allowed.
+7. Typography: keep the current fonts (default when they are customised), or a display and text pairing proposed for the personality. An optional mono face covers data-heavy products.
+8. Shape and density: the radius (from `--radius`), comfortable or compact spacing, and depth from borders, from shadows, or from tonal surfaces.
+9. Motion: subtle by default, none, or expressive. Every option respects `prefers-reduced-motion`.
+10. Signature: one recognisable device the product repeats, in plain text, with two or three proposals that fit the personality.
+11. Component policy: add missing shadcn components with the CLI (default), or use only the installed ones and list what is missing in the report.
+12. House rules, banned patterns and ignored paths, in plain text, proposed from the scan in 5.3.
+
+### 5.5 Generated agent
+
+The procedure is specific to design. The agent first checks the brief. When the request leaves the purpose, the primary action or the content unknown, it builds nothing for those parts and returns brief questions (2.5 uncertainty). Otherwise it takes stock of the installed components, the tokens and similar screens. It then writes a short plan before any code: the hierarchy, the one primary action, where the signature appears, and the components it will use. It builds the plan, covers every state, and runs the project's lint and typecheck. The last two steps follow 2.5.
+
+Between Procedure and Boundaries, the agent has seven domain sections.
+
+1. **Design direction** records the product, the audience, the personality, the references, the anti-references and the signature, as decisions rather than adjectives.
+2. **Tokens** lists the semantic tokens with their roles, the colour format, the file they live in, and how a new token is added: in light and dark mode, and mapped for Tailwind. It also records the radius, the spacing and type scales, and the fonts.
+3. **Components** names the installed shadcn/ui components, the CLI command for adding one, the `cn()` helper, and the rule that variants go through `cva` in a wrapper or feature component, not through copies of a primitive.
+4. **UI standards** lists the checkable rules: WCAG 2.2 AA contrast for every token pair used, visible focus with the ring token, labels on every input, target sizes, keyboard paths, headings in order, and every state (loading, empty, error, disabled, overflow, long text). It also covers mobile-first layout down to 320 px, both themes, and reduced motion.
+5. **House rules** lists the user's rules.
+6. **Banned patterns** names each pattern and why it is banned. The default list covers raw palette classes, hex and `rgb()` colours outside the theme file, arbitrary values that duplicate the scale, inline colour styles, a second UI library, and copied primitives.
+7. **Generic design** names the habits that make an interface look machine-made and tells the agent to check its own output for them. Examples are a purple-to-blue gradient, gradient text, a centred hero over three icon cards, an icon in a tinted circle on every item, glass panels, decorative blobs, emoji used as icons, a heavy shadow on every card, filler copy and invented metrics or testimonials. The section ends with the rule that one deliberate choice from the direction beats several decorative ones.
+
+The output opens with a one-line status, then gives the plan as built and the files changed. It names the components added, any token changes with their contrast ratios, the states covered and the check results. Brief questions and Open questions come last.
+
+### 5.6 Examples
+
+The kit ships one sample agent: a complete `designer` agent file for the same made-up Next.js 15 and React 19 app on Supabase used in the other kits, styled with Tailwind CSS v4 and shadcn/ui on OKLCH tokens (`nextjs-supabase.md`). It gives the app a distinct direction (an editorial, drafting-table feel for architecture studios), so the generator sees how specific a direction must be. It never copies that direction.
+
+### 5.7 Acceptance
+
+1. Running `/designer:create` in a real shadcn/ui repository detects the style, the tokens, the colour format, the installed components, the fonts and the check commands, and asks no question the repository already answers.
+2. A repository without `components.json` is told the agent needs shadcn/ui and is offered `npx shadcn@latest init` before generation. Nothing runs without a yes.
+3. The generated agent passes 2.5, its Design direction names concrete choices rather than adjectives, and every token it names exists in the theme stylesheet.
+4. A dry run on a vague request returns brief questions and builds nothing for the unclear parts. A dry run on a clear request builds the screen from shadcn components with no banned pattern, covers its states, and passes lint and typecheck.
+5. After a run, every new colour pair the agent introduced meets WCAG 2.2 AA in both themes, and no file outside the UI code, the theme stylesheet and the shadcn components folder has changed.
+
+### 5.8 Implementation notes
+
+The kit in `plugins/designer/` contains the generator skill, the agent template, the Next.js and Supabase sample, a README and a CHANGELOG. It is listed in `marketplace.json` and the root `README.md`. One decision was made while building it. A subagent cannot ask questions in the middle of a run, so the design questions are split in two. Questions that hold for the whole product (direction, colour, type, shape, motion, signature) are asked once by the generator. Questions about a single screen (its purpose, primary action and content) are returned by the agent as brief questions, and the main conversation asks the user and runs the agent again. The kit also ships `references/design-direction.md`, beyond the 2.1 layout: it holds the personality directions, font pairings, palette method, signature devices and generic habits the interview draws its options from. Keeping it separate keeps `SKILL.md` under 300 lines, as 2.4 allows.

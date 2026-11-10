@@ -1,0 +1,6 @@
+{
+  "name": "designer",
+  "version": "1.0.0",
+  "description": "Interviews you and generates a UI design subagent that builds with shadcn/ui and your design tokens.",
+  "author": { "name": "turalowski" }
+}

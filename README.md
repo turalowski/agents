@@ -3,9 +3,10 @@
 Claude Code agents that know your repository. Generic AI reviewers and test writers give generic advice. Each kit here reads your codebase (stack, commands, conventions, CI), asks you a few questions, and writes a subagent into `.claude/agents/` that follows your project's real rules.
 
 - **[code-reviewer](plugins/code-reviewer/README.md)** reviews changes against your checks and house rules, cites exact lines, and ends with a verdict.
+- **[designer](plugins/designer/README.md)** designs and builds screens with shadcn/ui and your design tokens, in a design direction you settle once, and asks about unclear briefs instead of guessing.
 - **[tester](plugins/tester/README.md)** writes tests in your project's style, proves that each one catches the change, and asks about unclear behaviour instead of guessing.
 
-Both were measured against a plain prompt on a real repository: see [Does it make a difference?](#does-it-make-a-difference) The repository was built with Claude Code from a spec. [REQUIREMENTS.md](REQUIREMENTS.md) defines the pattern every kit follows, and each kit was implemented step by step, evaluated, and revised from the results.
+code-reviewer and tester were measured against a plain prompt on a real repository: see [Does it make a difference?](#does-it-make-a-difference) The repository was built with Claude Code from a spec. [REQUIREMENTS.md](REQUIREMENTS.md) defines the pattern every kit follows, and each kit was implemented step by step, evaluated, and revised from the results.
 
 What a generated reviewer's output looks like (shortened, from the evaluation):
 
@@ -46,10 +47,11 @@ Run a kit's generator in your project with `/<kit>:create`, answer the questions
 
 ## Kits
 
-| Kit                                              | Generates                                                                                                      | Run                     |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| [code-reviewer](plugins/code-reviewer/README.md) | A code-review subagent that checks changes against your stack, house rules and checks, and ends with a verdict | `/code-reviewer:create` |
-| [tester](plugins/tester/README.md)               | A test-writing subagent that adds tests in your project's style and proves each one fails without the change   | `/tester:create`        |
+| Kit                                              | Generates                                                                                                       | Run                     |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| [code-reviewer](plugins/code-reviewer/README.md) | A code-review subagent that checks changes against your stack, house rules and checks, and ends with a verdict  | `/code-reviewer:create` |
+| [designer](plugins/designer/README.md)           | A UI design subagent that builds screens with shadcn/ui and your tokens, in your product's own design direction | `/designer:create`      |
+| [tester](plugins/tester/README.md)               | A test-writing subagent that adds tests in your project's style and proves each one fails without the change    | `/tester:create`        |
 
 ## Does it make a difference?
 
